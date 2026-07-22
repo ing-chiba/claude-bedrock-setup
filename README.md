@@ -56,11 +56,15 @@ aws iam add-user-to-group --group-name ConsoleUsers --user-name ing_xxxx --profi
 
 ## 2. 多要素認証 (MFA) の設定
 
-このアカウントは MFA を設定するまでほぼすべての操作(Bedrock の呼び出しを含む)が拒否されるポリシーになっている。ログイン後に MFA 設定を促す画面は出ないので、ログインしたら最初に必ず自分で MFA を設定すること。
+> [!IMPORTANT]
+> このアカウントは MFA を設定するまでほぼすべての操作(Bedrock の呼び出しを含む)が拒否されるポリシーになっている。ログイン後に MFA 設定を促す画面は出ないので、ログインしたら最初に必ず自分で MFA を設定すること。
 
 <https://us-east-1.console.aws.amazon.com/iam/home?region=us-east-1#/security_credentials/mfa> を開き、**MFA デバイスの割り当て** を選択する。
 
 デバイス名(例: `macbook`)を入力し、デバイスオプションは **パスキーまたはセキュリティキー**(推奨)を選んで **次へ**。画面の指示に従い Touch ID などで登録を完了する。認証アプリ(Google Authenticator 等)を使いたい場合は **認証アプリケーション** を選んでもよい。
+
+> [!WARNING]
+> **認証アプリケーション** を選ぶ場合、デバイス名は自分のユーザー名(例: `ing_xxxx`)をそのまま入力すること。権限ポリシーが「デバイス名 = ユーザー名」の仮想 MFA しか作成を許可していないため、それ以外の名前だと `not authorized to perform: iam:CreateVirtualMFADevice` エラーになる。パスキー/セキュリティキーの場合はデバイス名は自由でよい。
 
 ![MFA デバイスの割り当て画面](images/mfa-assign.png)
 
@@ -237,7 +241,8 @@ These will be written to ~/.claude/settings.json under env:
   2. Cancel
 ```
 
-結果は `~/.claude/settings.json` の `env` ブロックに自動保存されるため、環境変数のエクスポートは不要。設定を変えたくなったら、セッション内で `/setup-bedrock` と打つと同じウィザードが開く。
+> [!NOTE]
+> 結果は `~/.claude/settings.json` の `env` ブロックに自動保存されるため、環境変数のエクスポートは不要。設定を変えたくなったら、セッション内で `/setup-bedrock` と打つと同じウィザードが開く。
 
 ## 動作確認
 
@@ -256,7 +261,8 @@ These will be written to ~/.claude/settings.json under env:
   Setting sources:  User settings, Project local settings
 ```
 
-モデルの確認・変更は `/model` でできる。おすすめは最上位モデルの **Fable**(利用料は気にしなくてよい)。
+> [!TIP]
+> モデルの確認・変更は `/model` でできる。おすすめは最上位モデルの **Fable**(利用料は気にしなくてよい)。
 
 ```shell
 ❯ /model
