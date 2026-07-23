@@ -68,7 +68,10 @@ aws iam add-user-to-group --group-name ConsoleUsers --user-name ing_xxxx --profi
 
 ![MFA デバイスの割り当て画面](images/mfa-assign.png)
 
-登録後、一度サインアウトして MFA 付きで再ログインしておく(以降のセッションに MFA が効いていることの確認になる)。
+> [!IMPORTANT]
+> 登録が完了したら、**必ず一度サインアウトして MFA 付きで再ログインすること**。ログイン中のセッションは MFA なしのままなので、再ログインするまで権限ポリシーの制限(MFA 未認証時はほぼすべて拒否)が効き続ける。
+>
+> 登録直後に `iam:GetMFADevice ... an identity-based policy explicitly denies the action` のようなエラーが表示されることがあるが、これは MFA なしセッションのままであることが原因で、登録自体は成功している。再ログインすれば解消する。
 
 ## 3. AWS CLI の設定
 
