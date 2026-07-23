@@ -288,3 +288,4 @@ These will be written to ~/.claude/settings.json under env:
 ## 参考
 
 - [Claude Code on Amazon Bedrock](https://code.claude.com/docs/ja/amazon-bedrock)
+- [Bedrock 利用状況を IAM ユーザー別に集計する](usage-by-iam.md)(管理者向け)
