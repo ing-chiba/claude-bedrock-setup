@@ -285,6 +285,39 @@ These will be written to ~/.claude/settings.json under env:
   ↓ 10. Opus 4.7 (1M context)    Opus 4.7 for long sessions
 ```
 
+## セッション切れで使えなくなったとき
+
+しばらく使っていると、次のエラーが出て応答が返らなくなることがある。
+
+```
+API Error: Your session has expired. Please reauthenticate.
+```
+
+これは `aws login` で取得したセッション(有効期限あり)が切れただけで、アカウントや設定の問題ではない。AWS コンソールや Claude Code の `/login` をやり直しても直らない。次の手順で復旧する。
+
+1. ターミナルで再ログインする(ブラウザが開くので MFA 付きでサインイン)。
+
+   ```sh
+   aws login --profile smilesurvey
+   ```
+
+2. 疎通確認する。Arn に自分のユーザー名が出れば OK。
+
+   ```sh
+   aws sts get-caller-identity --profile smilesurvey
+   ```
+
+3. **Claude Code を一度完全に終了して起動し直す。** 起動中のセッションは古い認証情報を掴んだままのことがあるため、`aws login` し直しただけでは復旧しないことがある。
+
+> [!TIP]
+> `~/.claude/settings.json` に以下を足しておくと、セッション切れ時に Claude Code が自動で `aws login` を実行してブラウザ再認証を促すようになる(`env` ブロックと同じ階層に追加する)。
+>
+> ```json
+> {
+>   "awsAuthRefresh": "aws login --profile smilesurvey"
+> }
+> ```
+
 ## 参考
 
 - [Claude Code on Amazon Bedrock](https://code.claude.com/docs/ja/amazon-bedrock)
