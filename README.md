@@ -309,7 +309,7 @@ API Error: Your session has expired. Please reauthenticate.
 
 3. **Claude Code を一度完全に終了して起動し直す。** 起動中のセッションは古い認証情報を掴んだままのことがあるため、`aws login` し直しただけでは復旧しないことがある。
 
-15〜30分おきに何度も切れる場合は別の原因なので、[セッションが頻繁に切れるとき](session-expired.md)を参照する。
+15〜30分おきに何度も切れる場合は別の原因なので、[セッションが頻繁に切れるとき](docs/session-expired.md)を参照する。
 
 > [!TIP]
 > `~/.claude/settings.json` に以下を足しておくと、セッション切れ時に Claude Code が自動で `aws login` を実行してブラウザ再認証を促すようになる(`env` ブロックと同じ階層に追加する)。
@@ -323,6 +323,6 @@ API Error: Your session has expired. Please reauthenticate.
 ## 参考
 
 - [Claude Code on Amazon Bedrock](https://code.claude.com/docs/ja/amazon-bedrock)
-- [セッションが頻繁に切れるとき](session-expired.md)
-- [Bedrock API キーで認証する](bedrock-api-key.md)(`aws login` を使わない代替手段)
-- [Bedrock 利用状況を IAM ユーザー別に集計する](usage-by-iam.md)(管理者向け)
+- [セッションが頻繁に切れるとき](docs/session-expired.md)
+- [Bedrock API キーで認証する](docs/bedrock-api-key.md)(`aws login` を使わない代替手段)
+- [Bedrock 利用状況を IAM ユーザー別に集計する](docs/usage-by-iam.md)(管理者向け)
