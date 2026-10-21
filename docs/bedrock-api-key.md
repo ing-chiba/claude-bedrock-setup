@@ -16,14 +16,9 @@
 
 裏側は IAM の service-specific credential で、用途が Bedrock に固定されている。キーが漏れても S3 や IAM は触れない。そのぶん MFA は乗らないので、その1点を許容できるかで採否が決まる。
 
-## キーの発行を千葉に依頼
+## キーの発行
 
-千葉に依頼してキーを発行してもらい、`ABSK` で始まる120文字の文字列を受け取る。
-
-<details>
-<summary>キーの発行</summary>
-
-対象ユーザーを指定してキーを作る。`--credential-age-days` で有効日数を決める。
+自分で発行する。IAM の操作は MFA 付きのセッションでしか通らないので、先に `aws login --profile smilesurvey` でログインしておく。
 
 ```sh
 aws iam create-service-specific-credential \
@@ -33,16 +28,20 @@ aws iam create-service-specific-credential \
   --profile smilesurvey
 ```
 
-レスポンスの `ServiceCredentialSecret` が本人に渡す値。
+| 項目 | 内容 |
+|---|---|
+| `ServiceCredentialSecret` | `ABSK` で始まる120文字のキー。設定に使う |
+| `ServiceSpecificCredentialId` | `ACCA` で始まる ID。無効化と削除に使う |
+| `ExpirationDate` | 失効日時 |
+
+`--credential-age-days` は90が上限で、それより長いと権限エラーになる。権限は `bedrock-users-group` に付けた [bedrock-users-self-credential](../policies/bedrock-users-self-credential.json) で、自分のキーしか操作できない。
 
 > [!IMPORTANT]
 > AWS のドキュメントには `ServiceApiKeyValue` が返ると書かれているが、実際に返るフィールドは `ServiceCredentialSecret`。ドキュメントの記述と食い違う。
 >
-> この値を後から取得する手段はない。控え忘れた場合は `reset-service-specific-credential` で作り直す。
+> キーの値を後から取得する手段はない。控え忘れたら発行し直して古いほうを消す。
 
-`ServiceSpecificCredentialId`(`ACCA` で始まる)も記録しておく。無効化と削除にはこちらを使う。
-
-</details>
+自分で操作できないときは千葉に頼む。
 
 ## 設定(本人)
 
@@ -79,16 +78,7 @@ aws iam create-service-specific-credential \
 
 発行時に指定した日数で失効する。切れると Claude Code から Bedrock が呼べなくなるので、期限前に差し替える。
 
-```sh
-aws iam reset-service-specific-credential \
-  --user-name ing_xxxx \
-  --service-specific-credential-id ACCAXXXXXXXXXXXXXXXXX \
-  --profile smilesurvey
-```
-
-同じ ID のまま値だけが変わる。新しい `ServiceCredentialSecret` を本人に渡し、`settings.json` を更新してもらう。
-
-発行済みキーの一覧と期限は次で確認する。
+期限は次で確認する。
 
 ```sh
 aws iam list-service-specific-credentials \
@@ -96,6 +86,19 @@ aws iam list-service-specific-credentials \
   --service-name bedrock.amazonaws.com \
   --profile smilesurvey
 ```
+
+更新は、新しいキーを発行して `settings.json` を差し替えてから古いキーを消す。キーは1人2本まで持てるので、差し替えの間に Claude Code が止まらない。
+
+1. [キーの発行](#キーの発行)と同じコマンドで新しいキーを作る
+2. `settings.json` の `AWS_BEARER_TOKEN_BEDROCK` を新しいキーに書き換え、Claude Code を起動し直す
+3. 古いキーを消す
+
+   ```sh
+   aws iam delete-service-specific-credential \
+     --user-name ing_xxxx \
+     --service-specific-credential-id ACCAXXXXXXXXXXXXXXXXX \
+     --profile smilesurvey
+   ```
 
 ## 動作確認
 
